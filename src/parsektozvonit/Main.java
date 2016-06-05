@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 public class Main {
 
     private final static String URL_FOR_PARSE = "http://ktozvonit.com.ua/operators/067/15/0000000-0009999";
-    private final static Pattern pattern = Pattern.compile("\\((?<oper>\\d{3})\\)\\s*(?<number>\\d{3}(\\-?\\d{2}){2})");
-    private final static String DEFAULT_CODE_COUNTRY = "+38";
+    private final static Pattern pattern = Pattern.compile("\\+?(?<country>\\d{1,3})?\\s*?\\((?<oper>\\d{2,3})\\)\\s*(?<number>\\d{3}(\\-\\d{2}){2})");
+   
     private static final String FOLDER_FOR_SAVE = "./data";
 
     /**
@@ -53,10 +53,11 @@ public class Main {
 
                     while (matcher.find()) {
                         String numberRaw = matcher.group();
+                        String country = matcher.group("country");
                         String operator = matcher.group("oper");
                         String number = matcher.group("number");
 
-                        phoneList.add(new Phone(numberRaw));
+                        phoneList.add(new Phone(numberRaw, country, operator));
                     }
                 }
                 reader.close();
@@ -71,7 +72,8 @@ public class Main {
                 int cntPhones = 0;
 
                 for (Phone ph : phoneList) {
-                    fos.write(ph.getNumberRaw().getBytes());
+                    ph.normilize();
+                    fos.write(ph.getNumberFormat().getBytes());
                     fos.write('\n');
 
                     cntPhones++;
@@ -85,8 +87,5 @@ public class Main {
                 System.err.println("Невозможно создать файл списка телефонов");
             }
         }
-
     }
 }
-
-
