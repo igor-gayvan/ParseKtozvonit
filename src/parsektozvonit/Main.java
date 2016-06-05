@@ -28,7 +28,7 @@ public class Main {
 
     private final static String URL_FOR_PARSE = "http://ktozvonit.com.ua/operators/067/15/0000000-0009999";
     private final static Pattern pattern = Pattern.compile("\\+?(?<country>\\d{1,3})?\\s*?\\((?<oper>\\d{2,3})\\)\\s*(?<number>\\d{3}(\\-\\d{2}){2})");
-   
+
     private static final String FOLDER_FOR_SAVE = "./data";
 
     /**
@@ -39,53 +39,43 @@ public class Main {
 
         URL site = new URL(URL_FOR_PARSE);
 
-        Phone phone = new Phone();
         List<Phone> phoneList = new ArrayList<>();
 
-        if (site != null) {
-            BufferedReader reader;
-            try {
-                reader = new BufferedReader(new InputStreamReader(site.openStream()));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(site.openStream()))) {
+            for (String line; (line = reader.readLine()) != null;) {
+                for (Matcher matcher = pattern.matcher(line); matcher.find();) {
+                    String numberRaw = matcher.group();
+                    String country = matcher.group("country");
+                    String operator = matcher.group("oper");
+                    String number = matcher.group("number");
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    Matcher matcher = pattern.matcher(line);
-
-                    while (matcher.find()) {
-                        String numberRaw = matcher.group();
-                        String country = matcher.group("country");
-                        String operator = matcher.group("oper");
-                        String number = matcher.group("number");
-
-                        phoneList.add(new Phone(numberRaw, country, operator));
-                    }
+                    phoneList.add(new Phone(numberRaw, country, operator));
                 }
-                reader.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            new File(FOLDER_FOR_SAVE).mkdir();
-            String fileName = FOLDER_FOR_SAVE + "/phone_list.txt";
-
-            try (FileOutputStream fos = new FileOutputStream(fileName, false)) {
-                int cntPhones = 0;
-
-                for (Phone ph : phoneList) {
-                    ph.convert();
-                    fos.write(ph.getNumberFormat().getBytes());
-                    fos.write('\n');
-
-                    cntPhones++;
-                }
-                fos.close();
-
-                System.out.printf("Phone's list save!%n");
-                System.out.printf("Count: %d%n%n", cntPhones);
-
-            } catch (IOException ex) {
-                System.err.println("Невозможно создать файл списка телефонов");
-            }
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        File saveFolder = new File(FOLDER_FOR_SAVE);
+                saveFolder.mkdir();
+        
+        String fileName = "phone_list.txt";
+
+        try (FileOutputStream fos = new FileOutputStream(new File(saveFolder, fileName))) {
+            for (Phone ph : phoneList) {
+                String convert = ph.convert();
+                
+                fos.write(convert.getBytes());
+                fos.write('\n');
+            }
+            fos.close();
+
+            System.out.printf("Phone's list save!%n");
+            System.out.printf("Count: %d%n%n", phoneList.size());
+
+        } catch (IOException ex) {
+            System.err.println("Невозможно создать файл списка телефонов");
+        }
+
     }
 }

@@ -34,7 +34,7 @@ public class Phone {
     }
 
     public void setNumberPhone(String number) {
-        this.numberPhone = numberPhone;
+        this.numberPhone = number;
     }
 
     public String getNumberRaw() {
@@ -69,19 +69,15 @@ public class Phone {
         this.numberFormat = numberFormat;
     }
 
-    public void convert() {
-        numberPhone = (country == null ? DEFAULT_CODE_COUNTRY : country) + numberRaw.replaceAll("\\(|\\)|\\+|-|\\s*", "");
+    public String convert() {
+        String convertedNumberPhone = (country == null ? DEFAULT_CODE_COUNTRY : country) + numberRaw.replaceAll("\\(|\\)|\\+|-|\\s*", "");
 
-        int len = numberPhone.length();
+        int len = convertedNumberPhone.length();
 
-        numberFormat = "+"
-                + numberPhone.substring(0, len - 9)
-                + " ("
-                + numberPhone.substring(len - 9, len - 7)
-                + ") "
-                + numberPhone.substring(len - 7, len - 4)
-                + " "
-                + numberPhone.substring(len - 4, len);
+        return String.format("+%s (%s) %s %s", convertedNumberPhone.substring(0, len - 9),
+                convertedNumberPhone.substring(len - 9, len - 7),
+                convertedNumberPhone.substring(len - 7, len - 4),
+                convertedNumberPhone.substring(len - 4, len));
 
     }
 }
