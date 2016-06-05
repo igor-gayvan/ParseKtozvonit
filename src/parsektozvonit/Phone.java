@@ -69,7 +69,7 @@ public class Phone {
         this.numberFormat = numberFormat;
     }
 
-    public void normilize() {
+    public void convert() {
         numberPhone = (country == null ? DEFAULT_CODE_COUNTRY : country) + numberRaw.replaceAll("\\(|\\)|\\+|-|\\s*", "");
 
         int len = numberPhone.length();

@@ -72,7 +72,7 @@ public class Main {
                 int cntPhones = 0;
 
                 for (Phone ph : phoneList) {
-                    ph.normilize();
+                    ph.convert();
                     fos.write(ph.getNumberFormat().getBytes());
                     fos.write('\n');
 
